@@ -2,30 +2,44 @@
 {% block content %}
 <div class="container mt-4">
     <h1 class="mb-4">Configurations for {{ device.ip }}</h1>
-    {% if  device.default_configuration_version.version_tag %}
-    <p>Default Configuration Version: {{ device.default_configuration_version.version_tag }}</p>
+    
+    {% if device.default_configuration_version.version_tag %}
+    <div class="alert alert-info" role="alert">
+        <strong>Default Configuration Version:</strong> {{ device.default_configuration_version.version_tag }}
+    </div>
     {% endif %}
-    <ul class="list-group">
-        {% if configurations|length < 1 %}
-        No configurations found for {{device.username|upper}}!
-        {% else %}
-        {% for config in configurations %}
-        <li class="list-group-item {% if config.pk == device.default_configuration_version.pk %}list-group-item-success{% endif %}">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <p class="mb-0">
-                        <strong>Version Tag:</strong> {{ config.version_tag }}
-                        {% if config.pk == device.default_configuration_version.pk %}
-                            <span class="badge bg-success">default</span>
-                            {% endif %}
-                        </p>
-                        <p class="mb-0"><strong>Timestamp:</strong> {{ config.timestamp }}</p>
+    
+    <div class="card">
+        <div class="card-body">
+            <ul class="list-group">
+                {% if configurations|length < 1 %}
+                <li class="list-group-item text-center">
+                    <svg class="bi bi-exclamation-circle" width="3em" height="3em" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 15.5A7.5 7.5 0 1 0 8 0a7.5 7.5 0 0 0 0 15.5zM8 1a7 7 0 1 1 0 14A7 7 0 0 1 8 1z"/>
+                        <path d="M7.001 4a1 1 0 1 1 2 0v5a1 1 0 1 1-2 0V4zm0 7a1 1 0 1 1 2 0 1 1 0 0 1-2 0z"/>
+                    </svg>
+                    <p class="mt-2">No configurations found for {{ device.username|upper }}!</p>
+                </li>
+                {% else %}
+                {% for config in configurations %}
+                <li class="list-group-item {% if config.pk == device.default_configuration_version.pk %}list-group-item-success{% endif %}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-1">
+                                <strong>Version Tag:</strong> {{ config.version_tag }}
+                                {% if config.pk == device.default_configuration_version.pk %}
+                                    <span class="badge badge-success">default</span>
+                                {% endif %}
+                            </p>
+                            <p class="mb-1"><strong>Timestamp:</strong> {{ config.timestamp }}</p>
+                        </div>
+                        <a href="{% url 'view_single_configuration' device.pk config.pk %}" class="btn btn-primary btn-sm">View Configuration</a>
                     </div>
-                    <a href="{% url 'view_single_configuration' device.pk config.pk %}" class="btn btn-primary">View Configuration</a>
-                </div>
-            </li>
-            {% endfor %}
-            {% endif %}
-    </ul>
+                </li>
+                {% endfor %}
+                {% endif %}
+            </ul>
+        </div>
+    </div>
 </div>
-{% endblock content %}
+{% endblock %}

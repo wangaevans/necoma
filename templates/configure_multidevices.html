@@ -1,20 +1,22 @@
 {% extends "base.html" %}
 {% load static %}
 {% load crispy_forms_tags %}
+
 {% block content %}
 <div class="container mt-4">
     <h1 class="text-center mb-4">Configure Devices</h1>
-    <form method="post"  class="row g-3 justify-content-center" id="configForm">
+    <form method="post" class="row g-3 justify-content-center" id="configForm">
         {% csrf_token %}
         <div class="col-md-8">
             {{ form|crispy }}
-        </div> 
-      <div class="col-md-8 text-center d-flex justify-content-end">
+        </div>
+        <div class="col-md-8 text-center d-flex justify-content-end">
             <button type="button" class="btn btn-danger mr-2" id="clearConfigBtn">Clear</button>
-            <button type="submit" class="btn btn-primary mr-2">Apply Configuration</button>
+            <button type="submit" class="btn btn-primary mr-2" id="applyConfigBtn" disabled>Apply Configuration</button>
         </div>
     </form>
 </div>
+
 <script src="{% static "js/jquery-3.5.1/jquery.min.js" %}"></script>
 <script>
     $(document).ready(function(){
@@ -28,16 +30,32 @@
             $('#id_commands').val(storedConfig);
         }
 
-        // Update local storage whenever there's a change in the form fields
+        // Function to check if the form is valid and enable/disable the Apply Configuration button
+        function checkFormValidity() {
+            var commandOrFile = $('#id_command_or_file').val();
+            var commands = $('#id_commands').val().trim();
+            var configFile = $('#id_config_file').val();
+
+            if ((commandOrFile === 'command' && commands !== '') || 
+                (commandOrFile === 'file' && configFile !== '')) {
+                $('#applyConfigBtn').prop('disabled', false);
+            } else {
+                $('#applyConfigBtn').prop('disabled', true);
+            }
+        }
+
+        // Update local storage and check form validity whenever there's a change in the form fields
         $('#configForm').on('change keyup', function() {
             var config = $('#id_commands').val();
             localStorage.setItem('config', config);
+            checkFormValidity();
         });
 
         // Clear configuration stored in local storage when the clear button is clicked
         $('#clearConfigBtn').click(function() {
             localStorage.removeItem('config');
             $('#id_commands').val(''); // Clear the input field
+            checkFormValidity();
         });
 
         $('#id_command_or_file').change(function(){
@@ -50,7 +68,11 @@
                 $('#id_commands').hide().prev('label').hide(); // Hide the label for Commands
                 $('#id_config_file').show().prev('label').show(); // Show the label for Configuration File
             }
+            checkFormValidity();
         }).change(); // Trigger the change event initially
+
+        // Initial check for form validity
+        checkFormValidity();
     });
 </script>
 
