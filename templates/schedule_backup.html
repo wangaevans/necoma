@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="container mt-4">
+    <div class="max-w-md mx-auto rounded-lg overflow-hidden shadow-md">
+      <div class="py-4 col-sm-8 mx-auto bg-white p-5 col-12 px-6">
+    <h1 class="mb-4">Configuration Backup</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <button class="btn-primary rounded border-0 p-2" type="submit">Now Schedule Backup</button>
+    </form>
+</div>
+</div>
+</div>
+{% endblock content %}
+

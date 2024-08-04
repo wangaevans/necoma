@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>netconfapp.views &mdash; Necoma 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Necoma
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../accounts.html">ARP-Spoofing-Detection Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../netconfapp.html">Core Functionality | All Views</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Necoma</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">netconfapp.views</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for netconfapp.views</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">.forms</span> <span class="kn">import</span> <span class="n">MultiDevicesConfigurationForm</span><span class="p">,</span> <span class="n">RollbackForm</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">django.utils.timezone</span> <span class="kn">import</span> <span class="n">make_aware</span>
+<span class="kn">from</span> <span class="nn">django.shortcuts</span> <span class="kn">import</span> <span class="n">render</span><span class="p">,</span> <span class="n">redirect</span><span class="p">,</span> <span class="n">get_object_or_404</span>
+<span class="kn">from</span> <span class="nn">.models</span> <span class="kn">import</span> <span class="n">Configuration</span><span class="p">,</span> <span class="n">Device</span><span class="p">,</span> <span class="n">Log</span>
+<span class="kn">from</span> <span class="nn">.forms</span> <span class="kn">import</span> <span class="n">DeviceForm</span><span class="p">,</span> <span class="n">ConfigurationForm</span>
+<span class="kn">from</span> <span class="nn">napalm</span> <span class="kn">import</span> <span class="n">get_network_driver</span>
+<span class="kn">from</span> <span class="nn">django.contrib</span> <span class="kn">import</span> <span class="n">messages</span>
+<span class="kn">from</span> <span class="nn">django.contrib.auth.decorators</span> <span class="kn">import</span> <span class="n">login_required</span>
+
+
+<div class="viewcode-block" id="show_configuration_logs">
+<a class="viewcode-back" href="../../netconfapp.html#netconfapp.views.show_configuration_logs">[docs]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">show_configuration_logs</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    View to display configuration logs.</span>
+
+<span class="sd">    :param request: HTTP request object.</span>
+<span class="sd">    :return: Rendered configuration logs page.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">configuration_logs</span> <span class="o">=</span> <span class="n">Log</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;-timestamp&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;configuration_logs.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;logs&#39;</span><span class="p">:</span> <span class="n">configuration_logs</span><span class="p">})</span></div>
+
+
+
+<div class="viewcode-block" id="delete_item">
+<a class="viewcode-back" href="../../netconfapp.html#netconfapp.views.delete_item">[docs]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">delete_item</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">pk</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    View to delete a device.</span>
+
+<span class="sd">    :param request: HTTP request object.</span>
+<span class="sd">    :param pk: Primary key of the device to delete.</span>
+<span class="sd">    :return: Redirect to home page or rendered error page.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">item</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">Device</span><span class="p">,</span> <span class="n">pk</span><span class="o">=</span><span class="n">pk</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">item</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+            <span class="n">Log</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">user</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Delete device </span><span class="si">{</span><span class="n">item</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">Log</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">user</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Delete device </span><span class="si">{</span><span class="n">item</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="dashboard">
+<a class="viewcode-back" href="../../netconfapp.html#netconfapp.views.dashboard">[docs]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">dashboard</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    View to display the dashboard.</span>
+
+<span class="sd">    :param request: HTTP request object.</span>
+<span class="sd">    :return: Rendered dashboard page.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">devices</span> <span class="o">=</span> <span class="n">Device</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;dashboard.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;devices&#39;</span><span class="p">:</span> <span class="n">devices</span><span class="p">})</span></div>
+
+
+
+<div class="viewcode-block" id="rollback_configuration">
+<a class="viewcode-back" href="../../netconfapp.html#netconfapp.views.rollback_configuration">[docs]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">rollback_configuration</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">device_pk</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    View to rollback a device&#39;s configuration.</span>
+
+<span class="sd">    :param request: HTTP request object.</span>
+<span class="sd">    :param device_pk: Primary key of the device to rollback.</span>
+<span class="sd">    :return: Redirect to home page or rendered error page.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">device</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">Device</span><span class="p">,</span> <span class="n">pk</span><span class="o">=</span><span class="n">device_pk</span><span class="p">)</span>
+    <span class="n">versions</span> <span class="o">=</span> <span class="n">Configuration</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;-timestamp&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="n">config_pk</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;config_pk&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">config_pk</span><span class="p">:</span>
+            <span class="n">device</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">Device</span><span class="p">,</span> <span class="n">pk</span><span class="o">=</span><span class="n">device_pk</span><span class="p">)</span>
+            <span class="n">configuration</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">Configuration</span><span class="p">,</span> <span class="n">pk</span><span class="o">=</span><span class="n">config_pk</span><span class="p">)</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">driver</span> <span class="o">=</span> <span class="n">get_network_driver</span><span class="p">(</span><span class="n">device</span><span class="o">.</span><span class="n">vendor</span><span class="p">)</span>
+                <span class="k">with</span> <span class="n">driver</span><span class="p">(</span><span class="n">hostname</span><span class="o">=</span><span class="n">device</span><span class="o">.</span><span class="n">ip</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="n">device</span><span class="o">.</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">device</span><span class="o">.</span><span class="n">password</span><span class="p">,</span> <span class="n">optional_args</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;port&quot;</span><span class="p">:</span> <span class="n">device</span><span class="o">.</span><span class="n">port</span> <span class="k">if</span> <span class="n">device</span><span class="o">.</span><span class="n">port</span> <span class="k">else</span> <span class="mi">22</span><span class="p">,</span> <span class="s2">&quot;transport&quot;</span><span class="p">:</span> <span class="s2">&quot;ssh&quot;</span> <span class="k">if</span> <span class="n">device</span><span class="o">.</span><span class="n">vendor</span> <span class="o">!=</span> <span class="s1">&#39;nxos&#39;</span> <span class="k">else</span> <span class="s1">&#39;telnet&#39;</span><span class="p">})</span> <span class="k">as</span> <span class="n">device_connection</span><span class="p">:</span>
+                    <span class="n">device_connection</span><span class="o">.</span><span class="n">open</span><span class="p">()</span>
+                    <span class="n">device_connection</span><span class="o">.</span><span class="n">load_merge_candidate</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">configuration</span><span class="o">.</span><span class="n">updated_config</span><span class="p">)</span>
+                    <span class="n">device_connection</span><span class="o">.</span><span class="n">commit_config</span><span class="p">()</span>
+                    <span class="n">device_connection</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+                <span class="n">device</span><span class="o">.</span><span class="n">default_configuration_version</span> <span class="o">=</span> <span class="n">configuration</span>
+                <span class="n">device</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+                <span class="n">messages</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;Rolled back to </span><span class="si">{</span><span class="n">configuration</span><span class="o">.</span><span class="n">version_tag</span><span class="si">}</span><span class="s1"> successfully.&#39;</span><span class="p">)</span>
+                <span class="n">Log</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Roll back to </span><span class="si">{</span><span class="n">configuration</span><span class="o">.</span><span class="n">version_tag</span><span class="si">}</span><span class="s1"> on </span><span class="si">{</span><span class="n">device</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">error_message</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                <span class="n">Log</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Roll back to </span><span class="si">{</span><span class="n">configuration</span><span class="o">.</span><span class="n">version_tag</span><span class="si">}</span><span class="s1"> on </span><span class="si">{</span><span class="n">device</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="n">error_message</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;error.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;error_message&#39;</span><span class="p">:</span> <span class="n">error_message</span><span class="p">})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Please select a version to rollback to.&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;rollback_configuration&#39;</span><span class="p">,</span> <span class="n">device_pk</span><span class="o">=</span><span class="n">device_pk</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;rollback_configuration.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;device&#39;</span><span class="p">:</span> <span class="n">device</span><span class="p">,</span> <span class="s1">&#39;versions&#39;</span><span class="p">:</span> <span class="n">versions</span><span class="p">})</span></div>
+
+
+
+<div class="viewcode-block" id="view_configurations">
+<a class="viewcode-back" href="../../netconfapp.html#netconfapp.views.view_configurations">[docs]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">view_configurations</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">pk</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    View to display configurations of a device.</span>
+
+<span class="sd">    :param request: HTTP request object.</span>
+<span class="sd">    :param pk: Primary key of the device.</span>
+<span class="sd">    :return: Rendered configurations page.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">device</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">Device</span><span class="p">,</span> <span class="n">pk</span><span class="o">=</span><span class="n">pk</span><span class="p">)</span>
+    <span class="n">configurations</span> <span class="o">=</span> <span class="n">device</span><span class="o">.</span><span class="n">get_configurations</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;configurations.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;device&#39;</span><span class="p">:</span> <span class="n">device</span><span class="p">,</span> <span class="s1">&#39;configurations&#39;</span><span class="p">:</span> <span class="n">configurations</span><span class="p">})</span></div>
+
+
+
+<div class="viewcode-block" id="view_devices_by_os">
+<a class="viewcode-back" href="../../netconfapp.html#netconfapp.views.view_devices_by_os">[docs]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">view_devices_by_os</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    View to display devices categorized by their operating systems.</span>
+
+<span class="sd">    :param request: HTTP request object.</span>
+<span class="sd">    :return: Rendered devices by OS page.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">all_devices</span> <span class="o">=</span> <span class="n">Device</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="n">cisco</span> <span class="o">=</span> <span class="n">all_devices</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">vendor__in</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;nxos&#39;</span><span class="p">,</span> <span class="s1">&#39;ios&#39;</span><span class="p">,</span> <span class="s1">&#39;iosxr&#39;</span><span class="p">])</span>
+    <span class="n">aristas</span> <span class="o">=</span> <span class="n">all_devices</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">vendor</span><span class="o">=</span><span class="s1">&#39;eos&#39;</span><span class="p">)</span>
+    <span class="n">juniper</span> <span class="o">=</span> <span class="n">all_devices</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">vendor</span><span class="o">=</span><span class="s1">&#39;junos&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;devices_by_vendors.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;cisco&#39;</span><span class="p">:</span> <span class="n">cisco</span><span class="p">,</span> <span class="s1">&#39;aristas&#39;</span><span class="p">:</span> <span class="n">aristas</span><span class="p">,</span> <span class="s1">&#39;juniper&#39;</span><span class="p">:</span> <span class="n">juniper</span><span class="p">})</span></div>
+
+
+
+<div class="viewcode-block" id="view_single_configuration">
+<a class="viewcode-back" href="../../netconfapp.html#netconfapp.views.view_single_configuration">[docs]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">view_single_configuration</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">device_pk</span><span class="p">,</span> <span class="n">config_pk</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    View to display a single configuration of a device.</span>
+
+<span class="sd">    :param request: HTTP request object.</span>
+<span class="sd">    :param device_pk: Primary key of the device.</span>
+<span class="sd">    :param config_pk: Primary key of the configuration.</span>
+<span class="sd">    :return: Rendered single configuration page.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">device</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">Device</span><span class="p">,</span> <span class="n">pk</span><span class="o">=</span><span class="n">device_pk</span><span class="p">)</span>
+    <span class="n">configuration</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">device</span><span class="o">.</span><span class="n">configurations</span><span class="p">,</span> <span class="n">pk</span><span class="o">=</span><span class="n">config_pk</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;single_configuration.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;device&#39;</span><span class="p">:</span> <span class="n">device</span><span class="p">,</span> <span class="s1">&#39;configuration&#39;</span><span class="p">:</span> <span class="n">configuration</span><span class="p">})</span></div>
+
+
+
+<div class="viewcode-block" id="modify_device_connection">
+<a class="viewcode-back" href="../../netconfapp.html#netconfapp.views.modify_device_connection">[docs]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">modify_device_connection</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">pk</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    View to modify a device&#39;s connection details.</span>
+
+<span class="sd">    :param request: HTTP request object.</span>
+<span class="sd">    :param pk: Primary key of the device.</span>
+<span class="sd">    :return: Redirect to home page or rendered modify device connection page.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">device</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">Device</span><span class="p">,</span> <span class="n">pk</span><span class="o">=</span><span class="n">pk</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">DeviceForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">,</span> <span class="n">instance</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">instance</span><span class="o">.</span><span class="n">ip</span> <span class="o">==</span> <span class="n">device</span><span class="o">.</span><span class="n">ip</span> <span class="ow">and</span> \
+               <span class="n">form</span><span class="o">.</span><span class="n">instance</span><span class="o">.</span><span class="n">username</span> <span class="o">==</span> <span class="n">device</span><span class="o">.</span><span class="n">username</span> <span class="ow">and</span> \
+               <span class="n">form</span><span class="o">.</span><span class="n">instance</span><span class="o">.</span><span class="n">password</span> <span class="o">==</span> <span class="n">device</span><span class="o">.</span><span class="n">password</span> <span class="ow">and</span> \
+               <span class="n">form</span><span class="o">.</span><span class="n">instance</span><span class="o">.</span><span class="n">vendor</span> <span class="o">==</span> <span class="n">device</span><span class="o">.</span><span class="n">vendor</span> <span class="ow">and</span> \
+               <span class="n">form</span><span class="o">.</span><span class="n">instance</span><span class="o">.</span><span class="n">port</span> <span class="o">==</span> <span class="n">device</span><span class="o">.</span><span class="n">port</span><span class="p">:</span>
+                <span class="n">Log</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                    <span class="n">user</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Modify connection details for device </span><span class="si">{</span><span class="n">device</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="s2">&quot;No changes made to the already existing connection&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">Log</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                    <span class="n">user</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Modify connection details for device </span><span class="si">{</span><span class="n">device</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">form</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">DeviceForm</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;modify_device_connection.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;form&#39;</span><span class="p">:</span> <span class="n">form</span><span class="p">})</span></div>
+
+
+
+<div class="viewcode-block" id="configure_device">
+<a class="viewcode-back" href="../../netconfapp.html#netconfapp.views.configure_device">[docs]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">configure_device</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">pk</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    View to configure a device.</span>
+
+<span class="sd">    :param request: HTTP request object.</span>
+<span class="sd">    :param pk: Primary key of the device.</span>
+<span class="sd">    :return: Redirect to home page or rendered configure device page.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">device</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">Device</span><span class="p">,</span> <span class="n">pk</span><span class="o">=</span><span class="n">pk</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">ConfigurationForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+            <span class="n">configuration</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s1">&#39;commands&#39;</span><span class="p">]</span>
+            <span class="n">user</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">driver</span> <span class="o">=</span> <span class="n">get_network_driver</span><span class="p">(</span><span class="n">device</span><span class="o">.</span><span class="n">vendor</span><span class="p">)</span>
+                <span class="k">with</span> <span class="n">driver</span><span class="p">(</span><span class="n">hostname</span><span class="o">=</span><span class="n">device</span><span class="o">.</span><span class="n">ip</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="n">device</span><span class="o">.</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">device</span><span class="o">.</span><span class="n">password</span><span class="p">,</span>
+                            <span class="n">optional_args</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;port&quot;</span><span class="p">:</span> <span class="n">device</span><span class="o">.</span><span class="n">port</span> <span class="ow">or</span> <span class="mi">22</span><span class="p">,</span>
+                                           <span class="s2">&quot;transport&quot;</span><span class="p">:</span> <span class="s2">&quot;ssh&quot;</span> <span class="k">if</span> <span class="n">device</span><span class="o">.</span><span class="n">vendor</span> <span class="o">!=</span> <span class="s1">&#39;nxos&#39;</span> <span class="k">else</span> <span class="s1">&#39;telnet&#39;</span><span class="p">})</span> <span class="k">as</span> <span class="n">device_connection</span><span class="p">:</span>
+                    <span class="n">device_connection</span><span class="o">.</span><span class="n">open</span><span class="p">()</span>
+                    <span class="n">device_connection</span><span class="o">.</span><span class="n">load_merge_candidate</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">configuration</span><span class="p">)</span>
+                    <span class="n">diff</span> <span class="o">=</span> <span class="n">device_connection</span><span class="o">.</span><span class="n">compare_config</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">device_connection</span><span class="o">.</span><span class="n">commit_config</span><span class="p">()</span>
+                        <span class="n">updated_config</span> <span class="o">=</span> <span class="n">device_connection</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="n">retrieve</span><span class="o">=</span><span class="s1">&#39;running&#39;</span><span class="p">,</span> <span class="n">sanitized</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="s1">&#39;running&#39;</span><span class="p">]</span>
+                        <span class="n">device_connection</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                        <span class="n">timestamp</span> <span class="o">=</span> <span class="n">make_aware</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">())</span>
+                        <span class="n">new_version_tag</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;v</span><span class="si">{</span><span class="n">device</span><span class="o">.</span><span class="n">configurations</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="n">device</span><span class="o">.</span><span class="n">configurations</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                            <span class="n">configuration</span><span class="o">=</span><span class="n">configuration</span><span class="p">,</span>
+                            <span class="n">version_tag</span><span class="o">=</span><span class="n">new_version_tag</span><span class="p">,</span>
+                            <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
+                            <span class="n">timestamp</span><span class="o">=</span><span class="n">timestamp</span><span class="p">,</span>
+                            <span class="n">diff</span><span class="o">=</span><span class="n">diff</span><span class="p">,</span>
+                            <span class="n">updated_config</span><span class="o">=</span><span class="n">updated_config</span>
+                        <span class="p">)</span>
+                        <span class="n">messages</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Configuration applied successfully.&#39;</span><span class="p">)</span>
+                        <span class="n">Log</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Configure </span><span class="si">{</span><span class="n">device</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;A new configuration version (</span><span class="si">{</span><span class="n">new_version_tag</span><span class="si">}</span><span class="s1">) has been applied successfully.&#39;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">device_connection</span><span class="o">.</span><span class="n">discard_config</span><span class="p">()</span>
+                        <span class="n">messages</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;No changes made.&#39;</span><span class="p">)</span>
+                        <span class="n">Log</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Configure </span><span class="si">{</span><span class="n">device</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="s2">&quot;No configuration changes made on this device&quot;</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">error_message</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;error.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;error_message&#39;</span><span class="p">:</span> <span class="n">error_message</span><span class="p">})</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">ConfigurationForm</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;configure_device.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;form&#39;</span><span class="p">:</span> <span class="n">form</span><span class="p">,</span> <span class="s1">&#39;device&#39;</span><span class="p">:</span> <span class="n">device</span><span class="p">})</span></div>
+
+
+
+<div class="viewcode-block" id="configure_multiple_devices">
+<a class="viewcode-back" href="../../netconfapp.html#netconfapp.views.configure_multiple_devices">[docs]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">configure_multiple_devices</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    View to configure multiple devices.</span>
+
+<span class="sd">    :param request: HTTP request object.</span>
+<span class="sd">    :return: Redirect to home page or rendered configure multiple devices page.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">MultiDevicesConfigurationForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">FILES</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+            <span class="n">selected_devices</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s2">&quot;devices&quot;</span><span class="p">]</span>
+            <span class="n">command_or_file</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s1">&#39;command_or_file&#39;</span><span class="p">]</span>
+            <span class="n">configuration</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s1">&#39;commands&#39;</span><span class="p">]</span>
+            <span class="n">config_file</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s1">&#39;config_file&#39;</span><span class="p">]</span>
+            <span class="n">user</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">device</span> <span class="ow">in</span> <span class="n">selected_devices</span><span class="p">:</span>
+                    <span class="n">driver</span> <span class="o">=</span> <span class="n">get_network_driver</span><span class="p">(</span><span class="n">device</span><span class="o">.</span><span class="n">vendor</span><span class="p">)</span>
+                    <span class="k">with</span> <span class="n">driver</span><span class="p">(</span><span class="n">hostname</span><span class="o">=</span><span class="n">device</span><span class="o">.</span><span class="n">ip</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="n">device</span><span class="o">.</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">device</span><span class="o">.</span><span class="n">password</span><span class="p">,</span>
+                                <span class="n">optional_args</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;port&quot;</span><span class="p">:</span> <span class="n">device</span><span class="o">.</span><span class="n">port</span> <span class="ow">or</span> <span class="mi">22</span><span class="p">,</span>
+                                               <span class="s2">&quot;transport&quot;</span><span class="p">:</span> <span class="s2">&quot;ssh&quot;</span> <span class="k">if</span> <span class="n">device</span><span class="o">.</span><span class="n">vendor</span> <span class="o">!=</span> <span class="s1">&#39;nxos&#39;</span> <span class="k">else</span> <span class="s1">&#39;telnet&#39;</span><span class="p">})</span> <span class="k">as</span> <span class="n">device_connection</span><span class="p">:</span>
+                        <span class="n">device_connection</span><span class="o">.</span><span class="n">open</span><span class="p">()</span>
+                        <span class="k">if</span> <span class="n">command_or_file</span> <span class="o">==</span> <span class="s1">&#39;command&#39;</span><span class="p">:</span>
+                            <span class="n">device_connection</span><span class="o">.</span><span class="n">load_merge_candidate</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">configuration</span><span class="p">)</span>
+                        <span class="k">elif</span> <span class="n">command_or_file</span> <span class="o">==</span> <span class="s1">&#39;file&#39;</span><span class="p">:</span>
+                            <span class="n">device_connection</span><span class="o">.</span><span class="n">load_merge_candidate</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">config_file</span><span class="o">.</span><span class="n">temporary_file_path</span><span class="p">())</span>
+                        <span class="n">diff</span> <span class="o">=</span> <span class="n">device_connection</span><span class="o">.</span><span class="n">compare_config</span><span class="p">()</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="n">device_connection</span><span class="o">.</span><span class="n">commit_config</span><span class="p">()</span>
+                            <span class="n">updated_config</span> <span class="o">=</span> <span class="n">device_connection</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="n">retrieve</span><span class="o">=</span><span class="s1">&#39;running&#39;</span><span class="p">,</span> <span class="n">sanitized</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="s1">&#39;running&#39;</span><span class="p">]</span>
+                            <span class="n">timestamp</span> <span class="o">=</span> <span class="n">make_aware</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">())</span>
+                            <span class="n">new_version_tag</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;v</span><span class="si">{</span><span class="n">device</span><span class="o">.</span><span class="n">configurations</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span>
+                            <span class="n">device</span><span class="o">.</span><span class="n">configurations</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                                <span class="n">configuration</span><span class="o">=</span><span class="n">configuration</span><span class="p">,</span>
+                                <span class="n">version_tag</span><span class="o">=</span><span class="n">new_version_tag</span><span class="p">,</span>
+                                <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
+                                <span class="n">timestamp</span><span class="o">=</span><span class="n">timestamp</span><span class="p">,</span>
+                                <span class="n">diff</span><span class="o">=</span><span class="n">diff</span><span class="p">,</span>
+                                <span class="n">updated_config</span><span class="o">=</span><span class="n">updated_config</span>
+                            <span class="p">)</span>
+                            <span class="n">Log</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Configure multiple devices&#39;</span><span class="p">,</span> <span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Configuration applied successfully to </span><span class="si">{</span><span class="n">device</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">device_connection</span><span class="o">.</span><span class="n">discard_config</span><span class="p">()</span>
+                            <span class="n">Log</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Configure multiple devices&#39;</span><span class="p">,</span> <span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;No configuration changes made on </span><span class="si">{</span><span class="n">device</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">messages</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Configuration applied successfully.&#39;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">error_message</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;error.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;error_message&#39;</span><span class="p">:</span> <span class="n">error_message</span><span class="p">})</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">MultiDevicesConfigurationForm</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;configure_multiple_devices.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;form&#39;</span><span class="p">:</span> <span class="n">form</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="connect_to_device">
+<a class="viewcode-back" href="../../netconfapp.html#netconfapp.views.connect_to_device">[docs]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">connect_to_device</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="n">ip</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ip&#39;</span><span class="p">)</span>
+        <span class="n">username</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;username&#39;</span><span class="p">)</span>
+        <span class="n">password</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;password&#39;</span><span class="p">)</span>
+        <span class="n">vendor</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;vendor&#39;</span><span class="p">)</span>
+        <span class="n">port</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;port&#39;</span><span class="p">,</span> <span class="s1">&#39;22&#39;</span><span class="p">)</span>
+
+        <span class="n">device</span><span class="p">,</span> <span class="n">created</span> <span class="o">=</span> <span class="n">Device</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span>
+            <span class="n">ip</span><span class="o">=</span><span class="n">ip</span><span class="p">,</span>
+            <span class="n">defaults</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;username&#39;</span><span class="p">:</span> <span class="n">username</span><span class="p">,</span> <span class="s1">&#39;password&#39;</span><span class="p">:</span> <span class="n">password</span><span class="p">,</span>
+                      <span class="s1">&#39;vendor&#39;</span><span class="p">:</span> <span class="n">vendor</span><span class="p">,</span> <span class="s1">&#39;port&#39;</span><span class="p">:</span> <span class="n">port</span><span class="p">}</span>
+        <span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># if vendor.lower() == &#39;junos&#39;:</span>
+            <span class="c1">#     hostname = JunosDevice(</span>
+            <span class="c1">#         host=ip, user=username, password=password, port=port)</span>
+            <span class="c1">#     ss = StartShell(hostname)</span>
+            <span class="c1">#     ss.open()</span>
+            <span class="c1">#     hostname.open()</span>
+
+            <span class="c1">#     startup_config_output = ss.run(</span>
+            <span class="c1">#         &#39;cli -c &quot;show configuration | display set&quot;&#39;)[1]</span>
+            <span class="c1">#     startup_config = startup_config_output</span>
+
+            <span class="c1">#     hostname.close()</span>
+            <span class="c1">#     ss.close()</span>
+            <span class="c1"># else:</span>
+            <span class="n">device_instances</span> <span class="o">=</span> <span class="p">{}</span>
+
+            <span class="n">driver</span> <span class="o">=</span> <span class="n">get_network_driver</span><span class="p">(</span><span class="n">vendor</span><span class="p">)</span>
+            <span class="n">device_connection</span> <span class="o">=</span> <span class="n">driver</span><span class="p">(</span>
+                <span class="n">hostname</span><span class="o">=</span><span class="n">device</span><span class="o">.</span><span class="n">ip</span><span class="p">,</span>
+                <span class="n">username</span><span class="o">=</span><span class="n">device</span><span class="o">.</span><span class="n">username</span><span class="p">,</span>
+                <span class="n">password</span><span class="o">=</span><span class="n">device</span><span class="o">.</span><span class="n">password</span><span class="p">,</span>
+                <span class="n">optional_args</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;port&quot;</span><span class="p">:</span> <span class="n">device</span><span class="o">.</span><span class="n">port</span> <span class="k">if</span> <span class="n">device</span><span class="o">.</span><span class="n">port</span> <span class="k">else</span> <span class="mi">22</span><span class="p">,</span>
+                    <span class="s2">&quot;transport&quot;</span><span class="p">:</span> <span class="s2">&quot;ssh&quot;</span> <span class="k">if</span> <span class="n">device</span><span class="o">.</span><span class="n">vendor</span> <span class="o">!=</span> <span class="s1">&#39;nxos&#39;</span> <span class="k">else</span> <span class="s1">&#39;telnet&#39;</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+
+            <span class="n">device_connection</span><span class="o">.</span><span class="n">open</span><span class="p">()</span>
+            <span class="n">device_instances</span><span class="p">[</span><span class="n">vendor</span><span class="p">]</span> <span class="o">=</span> <span class="n">device_connection</span><span class="o">.</span><span class="n">get_config</span><span class="p">()</span>
+            <span class="n">startup_config</span> <span class="o">=</span> <span class="n">device_instances</span><span class="p">[</span><span class="n">vendor</span><span class="p">][</span><span class="s1">&#39;startup&#39;</span><span class="p">]</span>
+            <span class="n">device_connection</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+            <span class="n">device</span><span class="o">.</span><span class="n">startup_config</span> <span class="o">=</span> <span class="n">startup_config</span>
+            <span class="n">new_version_tag</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;v</span><span class="si">{</span><span class="n">device</span><span class="o">.</span><span class="n">configurations</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">timestamp</span> <span class="o">=</span> <span class="n">make_aware</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">())</span>
+            <span class="c1"># device.configurations.create(</span>
+            <span class="c1">#     version_tag=new_version_tag,</span>
+            <span class="c1">#     user=request.user,</span>
+            <span class="c1">#     timestamp=timestamp,</span>
+            <span class="c1">#     updated_config=startup_config</span>
+            <span class="c1"># )</span>
+            <span class="n">device</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+            <span class="n">Log</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">user</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Create device </span><span class="si">{</span><span class="n">device</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">error_message</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="n">Log</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">user</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Create device </span><span class="si">{</span><span class="n">device</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">details</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="n">error_message</span><span class="p">})</span>
+            <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;error.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;error_message&#39;</span><span class="p">:</span> <span class="n">error_message</span><span class="p">})</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;connect_to_device.html&#39;</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Wanga Evans.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

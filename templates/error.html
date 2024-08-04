@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto mt-8">
+    <div class="alert alert-danger" role="alert">
+        <h4 class="alert-heading">Something went wrong!</h4>
+        <p>{{ error_message }}</p>
+        <hr>
+        <p class="mb-0">
+            <button class="btn btn-danger" onclick="window.location.reload();">Try Again</button>
+        </p>
+    </div>
+</div>
+{% endblock content %}

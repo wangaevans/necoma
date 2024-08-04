@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="container mt-5">
+        <h1 class="mb-1">Logs - ({{logs|length}})</h1>
+        <p class="mb-4 text-lead">For each activity</p>
+        <table class="table">
+            <thead class="thead-light">
+                <tr>
+                    <th>User</th>
+                    <th>Action</th>
+                    <th>Success</th>
+                    <th>Timestamp</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td>{{ log.user|upper }}</td>
+                    <td>{{ log.action }}</td>
+                    <td>{% if log.success %}<span class="text-white px-3 py-1 rounded badge-success">Yes</span>{% else %}<span class="text-white px-3 py-1 rounded badge-danger">No</span>{% endif %}</td>
+                    <td>{{ log.timestamp }}</td>
+                    <td>{{ log.details }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock content %}

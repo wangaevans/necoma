@@ -1,0 +1,101 @@
+{% extends "base.html" %} {% load static %} {% block content %}
+<style>
+  /* Card Styles */
+  .card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+  }
+
+  .card:hover {
+    transform: translateY(-5px);
+  }
+
+  /* Image Styles */
+  .card-img-top {
+    height: 200px;
+    object-fit: contain;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+  }
+
+  /* Title and Text Styles */
+  .card-body {
+    padding: 1.5rem;
+  }
+
+  .card-title {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 0.5rem;
+  }
+
+  .card-text {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 0;
+  }
+
+  /* Shadow between Image and Title/Text */
+  .card-body::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 15px;
+    background: linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0),
+      rgba(255, 255, 255, 0.5)
+    );
+  }
+</style>
+<div class="container mt-5">
+  <h1 class="text-center mb-5">Supported Vendors</h1>
+  <div class="row justify-content-center">
+    <div class="col-md-4">
+      <!-- Cisco Card -->
+      <div class="card text-center">
+        <img src="{% static "image/cisco-logo.png " %}" class="card-img-top"
+        alt="Cisco Logo">
+        <hr class="sidebar-divider m-0 d-none d-md-block" />
+        <div class="card-body">
+          <h5 class="card-title">Cisco</h5>
+          <p class="card-text">
+            {{ cisco|length }} {% if cisco|length == 1 %}device{% else %}devices{% endif %}
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <!-- Juniper Card -->
+      <div class="card text-center">
+        <img src="{% static "image/juniper-logo.png"%}" class="card-img-top"
+        alt="Juniper Logo">
+        <hr class="sidebar-divider m-0 d-none d-md-block" />
+        <div class="card-body">
+          <h5 class="card-title">Juniper</h5>
+          <p class="card-text">
+            {{ juniper|length }} {% if juniper|length == 1 %}device{% else %}devices{% endif %}
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <!-- Aristas Card -->
+      <div class="card text-center">
+        <img src=" {% static "image/arista-logo.jfif" %}" class="card-img-top"
+        alt="Aristas Logo">
+        <div class="card-body">
+          <h5 class="card-title">Arista</h5>
+          <p class="card-text">
+            {{ aristas|length }} {% if aristas|length == 1 %}device{% else%}devices{% endif %}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

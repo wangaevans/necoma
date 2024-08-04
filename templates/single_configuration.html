@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Configuration Details</h1>
+    <div class="card mb-4">
+        <div class="card-header">
+            Version Information
+        </div>
+        <div class="card-body">
+            <p><strong>Version Tag:</strong> {{ configuration.version_tag }}</p>
+            <p><strong>Changes made by:</strong> {{ configuration.user|upper }}</p>
+            <p><strong>Timestamp:</strong> {{ configuration.timestamp }}</p>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            Configuration Changes
+        </div>
+        <div class="card-body">
+            <h3>Changes made by {{ configuration.user }} during this session</h3>
+            <pre class="bg-light text-dark border rounded-lg p-3">
+                  {% if configuration.diff %}
+        {{ configuration.diff }}
+    {% else %}
+        No configuration changes were made!
+    {% endif %}
+            </pre>
+
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            Commands Issued
+        </div>
+        <div class="card-body">
+            <pre class="bg-light text-dark border rounded-lg p-3">{{ configuration.configuration }}</pre>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            Updated Device Configuration
+        </div>
+        <div class="card-body">
+            <pre class="bg-light text-dark border rounded-lg p-3">{{ configuration.updated_config }}</pre>
+        </div>
+    </div>
+
+    <a href="{% url 'view_configurations' device.pk %}" class="btn btn-primary">Back to Configurations</a>
+</div>
+{% endblock %}

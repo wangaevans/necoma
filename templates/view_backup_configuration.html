@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow-lg border-0">
+        <div class="card-header bg-primary text-white py-3">
+          <h2 class="h4 mb-0 font-weight-bold">Backed-up Configuration</h2>
+        </div>
+        <div class="card-body p-4">
+          <h5 class="card-title text-muted mb-4">Backup Details</h5>
+          <div class="row mb-4">
+            <div class="col-sm-4">
+              <p class="mb-0"><strong>Device</strong></p>
+              <p class="text-muted">{{ backup.device }}</p>
+            </div>
+            <div class="col-sm-4">
+              <p class="mb-0"><strong>Date</strong></p>
+              <p class="text-muted">{{ backup.schedule_date }}</p>
+            </div>
+            <div class="col-sm-4">
+              <p class="mb-0"><strong>Time</strong></p>
+              <p class="text-muted">{{ backup.schedule_time }}</p>
+            </div>
+          </div>
+          <div class="mb-4">
+            <h6 class="font-weight-bold">Configuration</h6>
+            <pre class="bg-light p-3 rounded border"><code>{{ backup.configuration }}</code></pre>
+          </div>
+          
+          <form action="{% url 'rollback_configuration' device_pk=device_id %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger btn-lg btn-block">
+              <i class="fas fa-undo-alt mr-2"></i>Rollback Configuration
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

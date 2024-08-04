@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2 class="my-4">Scheduled Backups | {{ schedules|length }}</h2>
+  <table class="table">
+    <thead class="thead-light">
+      <tr>
+        <th>Device</th>
+        <th>Date</th>
+        <th>Time</th>
+        <th>Configuration</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for schedule in schedules %}
+        <tr data-backup-id="{{ schedule.id }}">
+          <td>{{ schedule.device }}</td>
+          <td>{{ schedule.schedule_date }}</td>
+          <td>{{ schedule.schedule_time }}</td>
+          {% if schedule.status == 'success' %}<td>
+            <a href="{% url 'view_backup_configuration' pk=schedule.id %}" class="btn btn-info btn-sm">
+              View Configuration
+            </a>
+          </td> {% else %}<td>-</td>{% endif %}
+          <td class="status-cell">
+            <span class="status-badge text-white px-3 py-1 rounded
+              {% if schedule.status == 'success' %}
+                badge-success
+              {% elif schedule.status == 'failed'%}
+                badge-danger
+              {% elif schedule.schedule_time < current_time %}
+                badge-danger
+              {% else %}
+                badge-secondary
+              {% endif %}">
+              {% if schedule.status == 'success' %}
+                Successful
+              {% elif schedule.schedule_time <  current_time%}
+                Failed
+              {% elif schedule.status == 'failed'%}
+                Failed
+              {% else %}
+                Pending
+              {% endif %}
+            </span>
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="6">No scheduled backups.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+{% endblock %}

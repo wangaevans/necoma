@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="max-w-md  mx-auto  rounded-lg overflow-hidden shadow-md">
+        <div class="py-4 col-sm-8 mx-auto bg-white p-5 col-12 px-6">
+            <h1 class="text-2xl font-semibold text-gray-800 mb-4 text-center">Modify Connection Details</h1>
+            <form id="ConnDetailsForm" method="post" class="space-y-4">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <div class="text-center">
+                    <button type="submit" onclick="confirmConnDetails()" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    function confirmConnDetails() {
+        if (confirm("Are you sure you want to modify the connection details of this device?")) {
+            document.getElementById('ConnDetailsForm').submit();
+        }
+    }
+</script>
+{% endblock content %}

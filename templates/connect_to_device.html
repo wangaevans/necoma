@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="max-w-md  mx-auto  rounded-lg overflow-hidden shadow-md">
+        <div class="py-4 col-sm-8 mx-auto bg-white p-5 col-12 px-6">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Connect to Device</h2>
+            <form method="post" class="space-y-4">
+                {% csrf_token %}
+                <div class="mb-4">
+                    <label for="vendor" class="form-label">Select Device Operating System:</label>
+                    <select name="vendor" id="vendor" class="form-select" onchange="togglePortInput()">
+                        <option value="eos">Arista EOS</option>
+                        <option value="junos">Juniper Junos</option>
+                        <option value="ios">Cisco IOS</option>
+                        <option value="iosxr">Cisco IOS XR</option>
+                        <option value="nxos">Cisco NX-OS</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label for="ip" class="form-label">IP Address:</label>
+                    <input type="text" name="ip" id="ip" class="form-control" value="127.0.0.1" required>
+                </div>
+                <div class="mb-4">
+                    <label for="username" class="form-label">Username:</label>
+                    <input type="text" name="username" id="username" class="form-control" required>
+                </div>
+                <div class="mb-4">
+                    <label for="password" class="form-label">Password:</label>
+                    <input type="password" name="password" id="password" class="form-control" required>
+                </div>
+                <div class="mb-4" id="portField">
+                    <label for="port" class="form-label">Port Number:</label>
+                    <input type="number" name="port" id="port" class="form-control" value="2222">
+                </div>
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary">Connect</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    function togglePortInput() {
+        var vendorSelect = document.getElementById('vendor');
+        var portField = document.getElementById('portField');
+
+        if (vendorSelect.value === 'nxos') {
+            portField.style.display = 'none';
+        } else {
+            portField.style.display = 'block';
+        }
+    }
+    // Call togglePortInput() initially to set the initial state based on selected vendor
+    togglePortInput();
+</script>
+{% endblock content %}

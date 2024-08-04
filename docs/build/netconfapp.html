@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Core Functionality | All Views &mdash; Necoma 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=2709fde1"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="ARP-Spoofing-Detection Module" href="accounts.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Necoma
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="accounts.html">ARP-Spoofing-Detection Module</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Core Functionality | All Views</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#configure-device">Configure Device</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#netconfapp.views.configure_device"><code class="docutils literal notranslate"><span class="pre">configure_device()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#connect-to-device">Connect to Device</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#netconfapp.views.connect_to_device"><code class="docutils literal notranslate"><span class="pre">connect_to_device()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#modify-device-connection">Modify Device Connection</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#netconfapp.views.modify_device_connection"><code class="docutils literal notranslate"><span class="pre">modify_device_connection()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#view-devices-by-os">View Devices by OS</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#netconfapp.views.view_devices_by_os"><code class="docutils literal notranslate"><span class="pre">view_devices_by_os()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#view-configurations">View Configurations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#netconfapp.views.view_configurations"><code class="docutils literal notranslate"><span class="pre">view_configurations()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#rollback-configuration">Rollback Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#netconfapp.views.rollback_configuration"><code class="docutils literal notranslate"><span class="pre">rollback_configuration()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#dashboard">Dashboard</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#netconfapp.views.dashboard"><code class="docutils literal notranslate"><span class="pre">dashboard()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#delete-item">Delete Item</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#netconfapp.views.delete_item"><code class="docutils literal notranslate"><span class="pre">delete_item()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#show-configuration-logs">Show Configuration Logs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#netconfapp.views.show_configuration_logs"><code class="docutils literal notranslate"><span class="pre">show_configuration_logs()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#configure-multiple-devices">Configure Multiple Devices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#netconfapp.views.configure_multiple_devices"><code class="docutils literal notranslate"><span class="pre">configure_multiple_devices()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#view-single-configuration">View Single Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#netconfapp.views.view_single_configuration"><code class="docutils literal notranslate"><span class="pre">view_single_configuration()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Necoma</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Core Functionality | All Views</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/netconfapp.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="core-functionality-all-views">
+<h1>Core Functionality | All Views<a class="headerlink" href="#core-functionality-all-views" title="Link to this heading"></a></h1>
+<p>This section provides detailed documentation on all the core functionalities of the <cite>netconfapp</cite>. Each view function corresponds to a specific operation that can be performed on network devices. The descriptions are aimed at providing a clear understanding of what each view does, how it interacts with other components, and any important considerations for use.</p>
+<section id="configure-device">
+<h2>Configure Device<a class="headerlink" href="#configure-device" title="Link to this heading"></a></h2>
+<p>This view allows users to apply new configurations to a specific network device. The configuration is sent to the device, and if successful, a new version of the configuration is saved in the system.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="netconfapp.views.configure_device">
+<span class="sig-prename descclassname"><span class="pre">netconfapp.views.</span></span><span class="sig-name descname"><span class="pre">configure_device</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pk</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netconfapp/views.html#configure_device"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#netconfapp.views.configure_device" title="Link to this definition"></a></dt>
+<dd><p>View to configure a device.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> – HTTP request object.</p></li>
+<li><p><strong>pk</strong> – Primary key of the device.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Redirect to home page or rendered configure device page.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="connect-to-device">
+<h2>Connect to Device<a class="headerlink" href="#connect-to-device" title="Link to this heading"></a></h2>
+<p>This view handles the initial connection to a network device. It captures the device details and attempts to connect using the provided credentials and vendor-specific drivers.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="netconfapp.views.connect_to_device">
+<span class="sig-prename descclassname"><span class="pre">netconfapp.views.</span></span><span class="sig-name descname"><span class="pre">connect_to_device</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netconfapp/views.html#connect_to_device"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#netconfapp.views.connect_to_device" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="modify-device-connection">
+<h2>Modify Device Connection<a class="headerlink" href="#modify-device-connection" title="Link to this heading"></a></h2>
+<p>This view enables users to modify the connection details of an existing device. Users can update the IP address, username, password, vendor, and port information.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="netconfapp.views.modify_device_connection">
+<span class="sig-prename descclassname"><span class="pre">netconfapp.views.</span></span><span class="sig-name descname"><span class="pre">modify_device_connection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pk</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netconfapp/views.html#modify_device_connection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#netconfapp.views.modify_device_connection" title="Link to this definition"></a></dt>
+<dd><p>View to modify a device’s connection details.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> – HTTP request object.</p></li>
+<li><p><strong>pk</strong> – Primary key of the device.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Redirect to home page or rendered modify device connection page.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="view-devices-by-os">
+<h2>View Devices by OS<a class="headerlink" href="#view-devices-by-os" title="Link to this heading"></a></h2>
+<p>This view displays devices grouped by their operating system (e.g., Cisco, Arista, Juniper). It helps users quickly locate devices based on their OS type.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="netconfapp.views.view_devices_by_os">
+<span class="sig-prename descclassname"><span class="pre">netconfapp.views.</span></span><span class="sig-name descname"><span class="pre">view_devices_by_os</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netconfapp/views.html#view_devices_by_os"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#netconfapp.views.view_devices_by_os" title="Link to this definition"></a></dt>
+<dd><p>View to display devices categorized by their operating systems.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> – HTTP request object.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Rendered devices by OS page.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="view-configurations">
+<h2>View Configurations<a class="headerlink" href="#view-configurations" title="Link to this heading"></a></h2>
+<p>This view lists all configurations associated with a specific device, allowing users to review and manage configuration versions.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="netconfapp.views.view_configurations">
+<span class="sig-prename descclassname"><span class="pre">netconfapp.views.</span></span><span class="sig-name descname"><span class="pre">view_configurations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pk</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netconfapp/views.html#view_configurations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#netconfapp.views.view_configurations" title="Link to this definition"></a></dt>
+<dd><p>View to display configurations of a device.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> – HTTP request object.</p></li>
+<li><p><strong>pk</strong> – Primary key of the device.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Rendered configurations page.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="rollback-configuration">
+<h2>Rollback Configuration<a class="headerlink" href="#rollback-configuration" title="Link to this heading"></a></h2>
+<p>This view enables users to rollback a device’s configuration to a previous version. It ensures that configurations can be reverted if needed.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="netconfapp.views.rollback_configuration">
+<span class="sig-prename descclassname"><span class="pre">netconfapp.views.</span></span><span class="sig-name descname"><span class="pre">rollback_configuration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device_pk</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netconfapp/views.html#rollback_configuration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#netconfapp.views.rollback_configuration" title="Link to this definition"></a></dt>
+<dd><p>View to rollback a device’s configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> – HTTP request object.</p></li>
+<li><p><strong>device_pk</strong> – Primary key of the device to rollback.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Redirect to home page or rendered error page.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="dashboard">
+<h2>Dashboard<a class="headerlink" href="#dashboard" title="Link to this heading"></a></h2>
+<p>The main dashboard view, displaying an overview of all network devices managed by the system.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="netconfapp.views.dashboard">
+<span class="sig-prename descclassname"><span class="pre">netconfapp.views.</span></span><span class="sig-name descname"><span class="pre">dashboard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netconfapp/views.html#dashboard"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#netconfapp.views.dashboard" title="Link to this definition"></a></dt>
+<dd><p>View to display the dashboard.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> – HTTP request object.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Rendered dashboard page.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="delete-item">
+<h2>Delete Item<a class="headerlink" href="#delete-item" title="Link to this heading"></a></h2>
+<p>This view handles the deletion of a network device from the system. It logs the deletion action and ensures that the device is properly removed.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="netconfapp.views.delete_item">
+<span class="sig-prename descclassname"><span class="pre">netconfapp.views.</span></span><span class="sig-name descname"><span class="pre">delete_item</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pk</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netconfapp/views.html#delete_item"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#netconfapp.views.delete_item" title="Link to this definition"></a></dt>
+<dd><p>View to delete a device.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> – HTTP request object.</p></li>
+<li><p><strong>pk</strong> – Primary key of the device to delete.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Redirect to home page or rendered error page.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="show-configuration-logs">
+<h2>Show Configuration Logs<a class="headerlink" href="#show-configuration-logs" title="Link to this heading"></a></h2>
+<p>This view displays a log of all configuration changes and actions performed on network devices. It provides an audit trail for network configurations.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="netconfapp.views.show_configuration_logs">
+<span class="sig-prename descclassname"><span class="pre">netconfapp.views.</span></span><span class="sig-name descname"><span class="pre">show_configuration_logs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netconfapp/views.html#show_configuration_logs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#netconfapp.views.show_configuration_logs" title="Link to this definition"></a></dt>
+<dd><p>View to display configuration logs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> – HTTP request object.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Rendered configuration logs page.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="configure-multiple-devices">
+<h2>Configure Multiple Devices<a class="headerlink" href="#configure-multiple-devices" title="Link to this heading"></a></h2>
+<p>This view allows users to apply a configuration to multiple devices simultaneously. Users can choose between providing commands directly or uploading a configuration file.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="netconfapp.views.configure_multiple_devices">
+<span class="sig-prename descclassname"><span class="pre">netconfapp.views.</span></span><span class="sig-name descname"><span class="pre">configure_multiple_devices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netconfapp/views.html#configure_multiple_devices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#netconfapp.views.configure_multiple_devices" title="Link to this definition"></a></dt>
+<dd><p>View to configure multiple devices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> – HTTP request object.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Redirect to home page or rendered configure multiple devices page.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="view-single-configuration">
+<h2>View Single Configuration<a class="headerlink" href="#view-single-configuration" title="Link to this heading"></a></h2>
+<p>This view displays the details of a single configuration for a specific device, including the changes made and the user who applied them.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="netconfapp.views.view_single_configuration">
+<span class="sig-prename descclassname"><span class="pre">netconfapp.views.</span></span><span class="sig-name descname"><span class="pre">view_single_configuration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device_pk</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_pk</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netconfapp/views.html#view_single_configuration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#netconfapp.views.view_single_configuration" title="Link to this definition"></a></dt>
+<dd><p>View to display a single configuration of a device.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> – HTTP request object.</p></li>
+<li><p><strong>device_pk</strong> – Primary key of the device.</p></li>
+<li><p><strong>config_pk</strong> – Primary key of the configuration.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Rendered single configuration page.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="accounts.html" class="btn btn-neutral float-left" title="ARP-Spoofing-Detection Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Wanga Evans.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
